@@ -63,18 +63,18 @@ def search(court, caseyear, casetype, casenumber):
 
     if connected == 0:
         em.connect(MainframeLocation)
-        sleep(0.2)
+        sleep(0.3)
         em.fill_field(20, 21, 'B', 1)
         em.send_enter()
-        sleep(0.2)
+        sleep(0.3)
         em.send_string(MainframeUsername)
         em.send_enter()
         em.send_string(MainframePassword)
         em.send_enter()
-        sleep(0.2)
+        sleep(0.3)
         em.send_string('1')
         em.send_enter()
-        sleep(0.2)
+        sleep(0.3)
     else:
         em.send_pf7()
         em.send_pf7()
@@ -91,6 +91,7 @@ def search(court, caseyear, casetype, casenumber):
     em.send_string(casenumber, ypos=16, xpos=47)
     em.send_enter()
     resultcode = 0
+    sleep(1)
 
     judgename = ""
     fileddate = ""
@@ -123,7 +124,7 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
-            sleep(0.2)
+            sleep(0.5)
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
@@ -167,7 +168,6 @@ def search(court, caseyear, casetype, casenumber):
                     plaintiffname = em.string_get(x, 38, 30)
     em.send_pf7()
     em.send_pf7()
-    
     return
 
 @app.route("/", methods=['GET', 'POST'])
