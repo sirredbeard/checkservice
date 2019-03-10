@@ -109,7 +109,6 @@ def search(court, caseyear, casetype, casenumber):
             casedescription = em.string_get(4, 58, 15)
             plaintiffname = "STATE OF GEORGIA"
             em.send_enter()
-            em.wait_for_field()
             em.send_string('Q')
             em.send_enter()
             em.wait_for_field()
