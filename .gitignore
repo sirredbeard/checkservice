@@ -1,3 +1,5 @@
 file.log
 credentials.py
+run.sh
 __pycache__/
+certs/*.pem

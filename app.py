@@ -1,18 +1,14 @@
-
-# python dependencies: flask, flask_limiter, wtforms, py3720
-# system dependencies: s3270
-
 from random import randint
 from time import strftime
 from datetime import datetime
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from py3270 import Emulator
 from credentials import MainframeLocation, MainframeUsername, MainframePassword
 
-DEBUG = True
+DEBUG = False
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = '9eBBtQ8IqUX1mWfZ31s9YC1lCRlFLTw4Tcg9cm2'
