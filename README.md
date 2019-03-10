@@ -12,7 +12,7 @@ This project uses Python3, [Flask](http://flask.pocoo.org/), [Flask Limiting](ht
 **Depedendecies:**
 
 - `$ sudo apt-get install git python3 python3-pip s3270 -y` Note: s3270 requires non-free repo to be enabled.
-- `$ pip3 install flask flask_limiter wtforms py3270 pyopenssl gunicorn -U`
+- `$ pip3 install flask flask_limiter wtforms py3270 pyopenssl gunicorn python3-dateutil -U`
 
 **Installation:**
 

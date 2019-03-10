@@ -1,6 +1,7 @@
 from random import randint
 from time import strftime, sleep
 from datetime import datetime
+from dateutil.parser import parse
 from flask import Flask, render_template, flash, request, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -26,6 +27,13 @@ class ReusableForm(Form):
 def get_time():
     time = strftime("%Y-%m-%dT%H:%M")
     return time
+
+def is_date(string):
+    try: 
+        parse(string)
+        return True
+    except ValueError:
+        return False
 
 def write_to_disk(court, caseyear, casetype, casenumber):
     data = open('file.log', 'a')
@@ -55,24 +63,24 @@ def search(court, caseyear, casetype, casenumber):
 
     if connected == 0:
         em.connect(MainframeLocation)
-        em.wait_for_field()
+        sleep(0.25)
         em.fill_field(20, 21, 'B', 1)
         em.send_enter()
-        em.wait_for_field()
+        sleep(0.25)
         em.send_string(MainframeUsername)
         em.send_enter()
         em.send_string(MainframePassword)
         em.send_enter()
-        em.wait_for_field()
+        sleep(0.25)
         em.send_string('1')
         em.send_enter()
-        sleep(1)
+        sleep(0.25)
     else:
         em.send_pf7()
         em.send_pf7()
         em.send_string('1')
         em.send_enter()
-        sleep(1)
+        sleep(0.25)
     
     em.send_string('Q')
     em.send_string('DCKT')
@@ -115,16 +123,16 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
-            sleep(1)
+            sleep(0.25)
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
                 fileddate = "Unavailable 🤷"
 
-            if servicedate == "00000000" or servicedate == "          ":
+            if servicedate == "00000000" or servicedate == "          " or is_date(servicedate) == False:
                 servicedate = "Unavailable 🤷"
-            #else:
-                #servicedate = datetime.strptime(str(servicedate), '%M/%d/%Y').strftime('%m-%d-%y')
+            else:
+                servicedate = datetime.strptime(str(servicedate), '%M/%d/%Y').strftime('%m-%d-%y')
 
         else:
             judgename = em.string_get(7, 14, 20)
@@ -133,13 +141,13 @@ def search(court, caseyear, casetype, casenumber):
             casedescription = em.string_get(8, 49, 14)
             em.send_string('Q')
             em.send_enter()
-            sleep(1)
+            sleep(0.25)
             servicedate = em.string_get(9, 25, 8)
             
-            if servicedate == "00000000" or servicedate == "          " or servicedate == "          " or servicedate == "":
+            if servicedate == "00000000" or servicedate == "          " or servicedate == "          " or servicedate == "" or is_date(servicedate) == False:
                 servicedate = "Unavailable 🤷"
-            #else:    
-                #servicedate = datetime.strptime(str(servicedate),'%Y%m%d').strftime('%m-%d-%y')
+            else:    
+                servicedate = datetime.strptime(str(servicedate),'%Y%m%d').strftime('%m-%d-%y')
 
                 if servicedate.startswith('0') == True:
                     servicedate = servicedate.strip('0')
