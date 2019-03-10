@@ -1,5 +1,5 @@
 from random import randint
-from time import strftime
+from time import strftime, sleep
 from datetime import datetime
 from flask import Flask, render_template, flash, request, redirect
 from flask_limiter import Limiter
@@ -17,10 +17,11 @@ em = Emulator()
 connected = 0
 
 class ReusableForm(Form):
-    court = TextField('Court:', validators=[validators.required()])
-    caseyear = TextField('Case Year:', validators=[validators.required()])
-    casetype = TextField('Case Type:', validators=[validators.required()])
-    casenumber = TextField('Case Number:', validators=[validators.required()])
+    global message
+    court = TextField('Court:', validators=[validators.required(),validators.length(min=2,max=2)])
+    caseyear = TextField('Case Year:', validators=[validators.required(),validators.length(min=2,max=4)])
+    casetype = TextField('Case Type:', validators=[validators.required(),validators.length(min=2,max=2)])
+    casenumber = TextField('Case Number:', validators=[validators.required(),validators.length(min=1,max=4)])
 
 def get_time():
     time = strftime("%Y-%m-%dT%H:%M")
@@ -65,14 +66,13 @@ def search(court, caseyear, casetype, casenumber):
         em.wait_for_field()
         em.send_string('1')
         em.send_enter()
-        em.wait_for_field()
+        sleep(1)
     else:
         em.send_pf7()
         em.send_pf7()
-        #em.wait_for_field()
         em.send_string('1')
         em.send_enter()
-        em.wait_for_field()
+        sleep(1)
     
     em.send_string('Q')
     em.send_string('DCKT')
@@ -115,7 +115,7 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
-            #em.wait_for_field()
+            sleep(1)
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
@@ -123,6 +123,8 @@ def search(court, caseyear, casetype, casenumber):
 
             if servicedate == "00000000" or servicedate == "          ":
                 servicedate = "Unavailable 🤷"
+            #else:
+                #servicedate = datetime.strptime(str(servicedate), '%M/%d/%Y').strftime('%m-%d-%y')
 
         else:
             judgename = em.string_get(7, 14, 20)
@@ -131,12 +133,13 @@ def search(court, caseyear, casetype, casenumber):
             casedescription = em.string_get(8, 49, 14)
             em.send_string('Q')
             em.send_enter()
+            sleep(1)
             servicedate = em.string_get(9, 25, 8)
             
-            if servicedate == "00000000" or servicedate == "          ":
+            if servicedate == "00000000" or servicedate == "          " or servicedate == "          " or servicedate == "":
                 servicedate = "Unavailable 🤷"
-            else:    
-                servicedate = datetime.strptime(str(servicedate), '%Y%m%d').strftime('%m-%d-%y')
+            #else:    
+                #servicedate = datetime.strptime(str(servicedate),'%Y%m%d').strftime('%m-%d-%y')
 
                 if servicedate.startswith('0') == True:
                     servicedate = servicedate.strip('0')
@@ -144,16 +147,18 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_enter()
             
-            for x in range(9, 15):
+            for x in range(9, 20):
                 checkparty = em.string_get(x, 2, 1)
                 if checkparty == "D":
                     defendantname = em.string_get(x, 38, 30)
 
-            for x in range(9, 15):
+            for x in range(9, 20):
                 checkparty = em.string_get(x, 2, 1)
                 if checkparty == "P":
                     plaintiffname = em.string_get(x, 38, 30)
-
+    em.send_pf7()
+    em.send_pf7()
+    
     return
 
 @app.route("/", methods=['GET', 'POST'])
@@ -174,6 +179,7 @@ def hello():
             search(court, caseyear, casetype, casenumber)
             flash('Searched: 🔎 {}-{}-{}-{}'.format(court, caseyear, casetype, casenumber))
             flash('Result: {}'.format(result))
+            connected = 1
 
             if resultcode == 0:
                 flash('Plaintiff/Complaintant: {}'.format(plaintiffname))
@@ -182,10 +188,18 @@ def hello():
                 flash('Assigned Judge ⚖️: {}'.format(judgename))
                 flash('Filed Date 📅: {}'.format(fileddate))
                 flash('Service/Arraignment Date 📮: {}'.format(servicedate))
-                connected = 1
-        else:
-            flash('Error. All fields are required.')
 
+        else:
+            flash("Invalid search criteria. ⚠️")
+
+    return render_template('index.html', form=form)
+
+@app.errorhandler(500)
+def internal_error(error):
+    global connected
+    form = ReusableForm(request.form)
+
+    flash("Something  went horribly wrong. ⚠️ Please try again.")
     return render_template('index.html', form=form)
 
 if __name__ == "__main__":
