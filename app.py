@@ -63,24 +63,24 @@ def search(court, caseyear, casetype, casenumber):
 
     if connected == 0:
         em.connect(MainframeLocation)
-        sleep(0.25)
+        sleep(0.2)
         em.fill_field(20, 21, 'B', 1)
         em.send_enter()
-        sleep(0.25)
+        sleep(0.2)
         em.send_string(MainframeUsername)
         em.send_enter()
         em.send_string(MainframePassword)
         em.send_enter()
-        sleep(0.25)
+        sleep(0.2)
         em.send_string('1')
         em.send_enter()
-        sleep(0.25)
+        sleep(0.2)
     else:
         em.send_pf7()
         em.send_pf7()
         em.send_string('1')
         em.send_enter()
-        sleep(0.25)
+        sleep(0.5)
     
     em.send_string('Q')
     em.send_string('DCKT')
@@ -123,7 +123,7 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
-            sleep(0.25)
+            sleep(0.2)
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
@@ -141,7 +141,7 @@ def search(court, caseyear, casetype, casenumber):
             casedescription = em.string_get(8, 49, 14)
             em.send_string('Q')
             em.send_enter()
-            sleep(0.25)
+            sleep(0.2)
             servicedate = em.string_get(9, 25, 8)
             
             if servicedate == "00000000" or servicedate == "          " or servicedate == "          " or servicedate == "" or is_date(servicedate) == False:
@@ -154,6 +154,7 @@ def search(court, caseyear, casetype, casenumber):
             
             em.send_enter()
             em.send_enter()
+            sleep(0.2)
             
             for x in range(9, 20):
                 checkparty = em.string_get(x, 2, 1)
