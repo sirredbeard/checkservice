@@ -8,7 +8,7 @@ from wtforms import Form, TextField, TextAreaField, validators, StringField, Sub
 from py3270 import Emulator
 from credentials import MainframeLocation, MainframeUsername, MainframePassword
 
-DEBUG = False
+DEBUG = True
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = '9eBBtQ8IqUX1mWfZ31s9YC1lCRlFLTw4Tcg9cm2'
@@ -37,7 +37,10 @@ def search(court, caseyear, casetype, casenumber):
     global judgename
     global servicedate
     global fileddate
+    global plaintiffname
+    global defendantname
     global connected
+    global casedescription
 
     if connected == 0:
         em.connect(MainframeLocation)
@@ -74,6 +77,9 @@ def search(court, caseyear, casetype, casenumber):
     judgename = "N/A"
     fileddate = "N/A"
     servicedate = "N/A"
+    plaintiffname = "N/A"
+    defendantname = "N/A"
+    casedescription = "N/A"
 
     if em.string_found(24,15,'INVALID COURT ENTERED'):
         result = 'Invalid Court Entered'
@@ -91,17 +97,48 @@ def search(court, caseyear, casetype, casenumber):
         result = 'Search Run'
         
         if casetype == "CR":
-            judgename = em.string_get(5, 15, 15)
+            judgename = em.string_get(5, 15, 20)
             servicedate = em.string_get(8, 67, 10)
             fileddate = em.string_get(18, 29, 10)
+            casedescription = em.string_get(4, 58, 15)
+            plaintiffname = "STATE OF GEORGIA"
+            em.send_enter()
+            em.send_string('Q')
+            em.send_enter()
+            defendantname = em.string_get(7, 30, 30)
+
+            if fileddate == "          ":
+                fileddate = "Unavailable"
+
+            if servicedate == "00000000" or servicedate == "          ":
+                servicedate = "Unavailable"
+
         else:
-            judgename = em.string_get(7, 14, 15)
+            judgename = em.string_get(7, 14, 20)
             em.send_enter()
             fileddate = em.string_get(8, 30, 8)
+            casedescription = em.string_get(8, 49, 14)
             em.send_string('Q')
             em.send_enter()
             servicedate = em.string_get(9, 25, 8)
-            servicedate = datetime.strptime(str(servicedate), '%Y%m%d').strftime('%m-%d-%Y')
+            
+            if servicedate == "00000000" or servicedate == "          ":
+                servicedate = "Unavailable"
+            else:    
+                servicedate = datetime.strptime(str(servicedate), '%Y%m%d').strftime('%m-%d-%Y')
+            
+            em.send_enter()
+            em.send_enter()
+            
+            for x in range(9, 15):
+                checkparty = em.string_get(x, 2, 1)
+                if checkparty == "D":
+                    defendantname = em.string_get(x, 38, 30)
+
+            for x in range(9, 15):
+                checkparty = em.string_get(x, 2, 1)
+                if checkparty == "P":
+                    plaintiffname = em.string_get(x, 38, 30)
 
     return
 
@@ -123,6 +160,9 @@ def hello():
             search(court, caseyear, casetype, casenumber)
             flash('Searched: {}-{}-{}-{}'.format(court, caseyear, casetype, casenumber))
             flash('Result Code: {}'.format(result))
+            flash('Plaintiff/Complaintant: {}'.format(plaintiffname))
+            flash('Defendant/Respondant: {}'.format(defendantname))
+            flash('Description: {}'.format(casedescription))
             flash('Assigned Judge: {}'.format(judgename))
             flash('Filed Date: {}'.format(fileddate))
             flash('Service/Arraignment Date: {}'.format(servicedate))
