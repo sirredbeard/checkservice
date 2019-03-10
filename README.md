@@ -30,7 +30,8 @@ This project uses Python3, [Flask](http://flask.pocoo.org/), [Flask Limiting](ht
 
 **With HTTPS:**
 
-- Generate certs with [certbot](https://certbot.eff.org/) and place in ./certs/cert.pem and ./certs/privkey.pem
+- Set debug to False at line 11 in production environments.
+- Generate certs with [certbot](https://certbot.eff.org/) and place in ./certs/cert.pem and ./certs/privkey.pem.
 - Set ip address and portnumber in `run.sh.ex` and rename to `run.sh`:
     - `$ nano run.sh.ex`
     - `$ mv run.sh.ex run.sh`

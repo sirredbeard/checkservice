@@ -44,6 +44,9 @@ def search(court, caseyear, casetype, casenumber):
 
     court = court.upper()
     casetype = casetype.upper()
+    
+    if not caseyear.startswith("20"):
+        caseyear = ''.join(('20',caseyear))
 
     if connected == 0:
         em.connect(MainframeLocation)
@@ -106,8 +109,10 @@ def search(court, caseyear, casetype, casenumber):
             casedescription = em.string_get(4, 58, 15)
             plaintiffname = "STATE OF GEORGIA"
             em.send_enter()
+            em.wait_for_field()
             em.send_string('Q')
             em.send_enter()
+            em.wait_for_field()
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
