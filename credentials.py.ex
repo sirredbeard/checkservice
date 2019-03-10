@@ -1,0 +1,3 @@
+MainframeLocation = ""
+MainframeUsername = ""
+MainframePassword = ""
