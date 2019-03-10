@@ -69,7 +69,7 @@ def search(court, caseyear, casetype, casenumber):
     else:
         em.send_pf7()
         em.send_pf7()
-        em.wait_for_field()
+        #em.wait_for_field()
         em.send_string('1')
         em.send_enter()
         em.wait_for_field()
