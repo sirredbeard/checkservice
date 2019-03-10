@@ -115,7 +115,7 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
-            em.wait_for_field()
+            #em.wait_for_field()
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
