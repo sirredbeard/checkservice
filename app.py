@@ -42,6 +42,9 @@ def search(court, caseyear, casetype, casenumber):
     global connected
     global casedescription
 
+    court = court.upper()
+    casetype = casetype.upper()
+
     if connected == 0:
         em.connect(MainframeLocation)
         em.wait_for_field()
