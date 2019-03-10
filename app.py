@@ -8,7 +8,7 @@ from wtforms import Form, TextField, TextAreaField, validators, StringField, Sub
 from py3270 import Emulator
 from credentials import MainframeLocation, MainframeUsername, MainframePassword
 
-DEBUG = True
+DEBUG = False
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = '9eBBtQ8IqUX1mWfZ31s9YC1lCRlFLTw4Tcg9cm2'
@@ -41,10 +41,14 @@ def search(court, caseyear, casetype, casenumber):
     global defendantname
     global connected
     global casedescription
+    global resultcode
 
     court = court.upper()
     casetype = casetype.upper()
     
+    if caseyear == "0":
+        caseyear = "2000"
+
     if not caseyear.startswith("20"):
         caseyear = ''.join(('20',caseyear))
 
@@ -80,12 +84,12 @@ def search(court, caseyear, casetype, casenumber):
     em.send_enter()
     resultcode = 0
 
-    judgename = "N/A"
-    fileddate = "N/A"
-    servicedate = "N/A"
-    plaintiffname = "N/A"
-    defendantname = "N/A"
-    casedescription = "N/A"
+    judgename = ""
+    fileddate = ""
+    servicedate = ""
+    plaintiffname = ""
+    defendantname = ""
+    casedescription = ""
 
     if em.string_found(24,15,'INVALID COURT ENTERED'):
         result = 'Invalid Court Entered ⚠️'
@@ -132,7 +136,7 @@ def search(court, caseyear, casetype, casenumber):
             if servicedate == "00000000" or servicedate == "          ":
                 servicedate = "Unavailable 🤷"
             else:    
-                servicedate = datetime.strptime(str(servicedate), '%Y%m%d').strftime('%m-%d-%Y')
+                servicedate = datetime.strptime(str(servicedate), '%Y%m%d').strftime('%m-%d-%y')
 
                 if servicedate.startswith('0') == True:
                     servicedate = servicedate.strip('0')
@@ -170,13 +174,15 @@ def hello():
             search(court, caseyear, casetype, casenumber)
             flash('Searched: 🔎 {}-{}-{}-{}'.format(court, caseyear, casetype, casenumber))
             flash('Result: {}'.format(result))
-            flash('Plaintiff/Complaintant: {}'.format(plaintiffname))
-            flash('Defendant/Respondant: {}'.format(defendantname))
-            flash('Description: {}'.format(casedescription))
-            flash('Assigned Judge ⚖️: {}'.format(judgename))
-            flash('Filed Date 📅: {}'.format(fileddate))
-            flash('Service/Arraignment Date 📅: {}'.format(servicedate))
-            connected = 1
+
+            if resultcode == 0:
+                flash('Plaintiff/Complaintant: {}'.format(plaintiffname))
+                flash('Defendant/Respondant: {}'.format(defendantname))
+                flash('Description: {}'.format(casedescription))
+                flash('Assigned Judge ⚖️: {}'.format(judgename))
+                flash('Filed Date 📅: {}'.format(fileddate))
+                flash('Service/Arraignment Date 📮: {}'.format(servicedate))
+                connected = 1
         else:
             flash('Error. All fields are required.')
 
