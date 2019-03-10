@@ -88,26 +88,26 @@ def search(court, caseyear, casetype, casenumber):
     casedescription = "N/A"
 
     if em.string_found(24,15,'INVALID COURT ENTERED'):
-        result = 'Invalid Court Entered'
+        result = 'Invalid Court Entered ⚠️'
         resultcode = 1
     
     if em.string_found(24,15,'INVALID CASE TYPE ENTERED'):
-        result = 'Invalid Case Type Entered'
+        result = 'Invalid Case Type Entered ⚠️'
         resultcode = 1
 
     if em.string_found(24,15,'CASE NOT ON FILE'):
-        result = 'Case Not Found'
+        result = 'Case Not Found ⚠️'
         resultcode = 1
         
     if resultcode == 0:
-        result = 'Search Run'
+        result = 'Search Ran 👍'
         
         if casetype == "CR":
             judgename = em.string_get(5, 15, 20)
             servicedate = em.string_get(8, 67, 10)
             fileddate = em.string_get(18, 29, 10)
             casedescription = em.string_get(4, 58, 15)
-            plaintiffname = "STATE OF GEORGIA"
+            plaintiffname = "STATE OF GEORGIA 🚓"
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
@@ -115,10 +115,10 @@ def search(court, caseyear, casetype, casenumber):
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
-                fileddate = "Unavailable"
+                fileddate = "Unavailable 🤷"
 
             if servicedate == "00000000" or servicedate == "          ":
-                servicedate = "Unavailable"
+                servicedate = "Unavailable 🤷"
 
         else:
             judgename = em.string_get(7, 14, 20)
@@ -130,9 +130,12 @@ def search(court, caseyear, casetype, casenumber):
             servicedate = em.string_get(9, 25, 8)
             
             if servicedate == "00000000" or servicedate == "          ":
-                servicedate = "Unavailable"
+                servicedate = "Unavailable 🤷"
             else:    
                 servicedate = datetime.strptime(str(servicedate), '%Y%m%d').strftime('%m-%d-%Y')
+
+                if servicedate.startswith('0') == True:
+                    servicedate = servicedate.strip('0')
             
             em.send_enter()
             em.send_enter()
@@ -165,14 +168,14 @@ def hello():
         if form.validate():
             write_to_disk(court, caseyear, casetype, casenumber)
             search(court, caseyear, casetype, casenumber)
-            flash('Searched: {}-{}-{}-{}'.format(court, caseyear, casetype, casenumber))
-            flash('Result Code: {}'.format(result))
+            flash('Searched: 🔎 {}-{}-{}-{}'.format(court, caseyear, casetype, casenumber))
+            flash('Result: {}'.format(result))
             flash('Plaintiff/Complaintant: {}'.format(plaintiffname))
             flash('Defendant/Respondant: {}'.format(defendantname))
             flash('Description: {}'.format(casedescription))
-            flash('Assigned Judge: {}'.format(judgename))
-            flash('Filed Date: {}'.format(fileddate))
-            flash('Service/Arraignment Date: {}'.format(servicedate))
+            flash('Assigned Judge ⚖️: {}'.format(judgename))
+            flash('Filed Date 📅: {}'.format(fileddate))
+            flash('Service/Arraignment Date 📅: {}'.format(servicedate))
             connected = 1
         else:
             flash('Error. All fields are required.')
