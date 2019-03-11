@@ -20,7 +20,7 @@ connected = 0
 class ReusableForm(Form):
     global message
     court = TextField('Court:', validators=[validators.required(),validators.length(min=2,max=2)])
-    caseyear = TextField('Case Year:', validators=[validators.required(),validators.length(min=2,max=4)])
+    caseyear = TextField('Case Year:', validators=[validators.required(),validators.length(min=4,max=4)])
     casetype = TextField('Case Type:', validators=[validators.required(),validators.length(min=2,max=2)])
     casenumber = TextField('Case Number:', validators=[validators.required(),validators.length(min=1,max=4)])
 
@@ -63,12 +63,15 @@ def search(court, caseyear, casetype, casenumber):
         em.fill_field(20, 21, 'B', 1)
         em.send_enter()
         sleep(0.5)
+        #em.wait_for_field()
         em.send_string(MainframeUsername)
         em.send_enter()
         sleep(0.5)
+        #em.wait_for_field()
         em.send_string(MainframePassword)
         em.send_enter()
         sleep(0.5)
+        #em.wait_for_field()
         em.send_string('1')
         em.send_enter()
         sleep(0.5)
