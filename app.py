@@ -55,44 +55,41 @@ def search(court, caseyear, casetype, casenumber):
     court = court.upper()
     casetype = casetype.upper()
     
-    if caseyear == "0":
-        caseyear = "2000"
-
-    if not caseyear.startswith("20"):
-        caseyear = ''.join(('20',caseyear))
+    if caseyear == 0:
+        caseyear = 2000
 
     if connected == 0:
         em.connect(MainframeLocation)
-        sleep(0.3)
         em.fill_field(20, 21, 'B', 1)
         em.send_enter()
-        sleep(0.3)
+        sleep(0.5)
         em.send_string(MainframeUsername)
         em.send_enter()
+        sleep(0.5)
         em.send_string(MainframePassword)
         em.send_enter()
-        sleep(0.3)
+        sleep(0.5)
         em.send_string('1')
         em.send_enter()
-        sleep(0.3)
+        sleep(0.5)
     else:
         em.send_pf7()
         em.send_pf7()
         em.send_string('1')
         em.send_enter()
-        sleep(0.3)
+        sleep(0.5)
     
     em.send_string('Q')
     em.send_string('DCKT')
     em.send_enter()
-    sleep(0.3)
+    sleep(0.5)
     em.send_string(court, ypos=10, xpos=47)
     em.send_string(caseyear, ypos=12, xpos=47)
     em.send_string(casetype, ypos=14, xpos=47)
     em.send_string(casenumber, ypos=16, xpos=47)
     em.send_enter()
     resultcode = 0
-    sleep(0.3)
+    sleep(0.5)
 
     judgename = ""
     fileddate = ""
@@ -125,7 +122,7 @@ def search(court, caseyear, casetype, casenumber):
             em.send_enter()
             em.send_string('Q')
             em.send_enter()
-            sleep(0.3)
+            sleep(0.5)
             defendantname = em.string_get(7, 30, 30)
 
             if fileddate == "          ":
@@ -143,7 +140,7 @@ def search(court, caseyear, casetype, casenumber):
             casedescription = em.string_get(8, 49, 14)
             em.send_string('Q')
             em.send_enter()
-            sleep(0.3)
+            sleep(0.5)
             servicedate = em.string_get(9, 25, 8)
             
             if servicedate == "00000000" or servicedate == "          " or servicedate == "          " or servicedate == "" or is_date(servicedate) == False:
@@ -156,7 +153,7 @@ def search(court, caseyear, casetype, casenumber):
             
             em.send_enter()
             em.send_enter()
-            sleep(0.3)
+            sleep(0.5)
             
             for x in range(9, 20):
                 checkparty = em.string_get(x, 2, 1)
